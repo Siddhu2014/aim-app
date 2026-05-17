@@ -89,13 +89,23 @@ dev_mode = st.sidebar.toggle("🛠️ Enable Developer Mode", value=False)
 data_df = None
 
 # --- TELEMETRY RESOLUTION LOGIC ---
-if uploaded_file is not None:
+# Initialize both variables to None up front to prevent production NameErrors
+data_df = None
+uploaded_file = None
+
+if not dev_mode:
+    # PUBLIC USER MODE: Immediately request CSV upload on the main screen
+    st.subheader("📥 Upload Your Telemetry Log")
+    st.write("Drop your tracking spreadsheet below to generate your custom diagnostics report.")
+    
+    uploaded_file = st.file_uploader("Upload target_tracking.csv", type=["csv"], label_visibility="collapsed")
+    
+    if uploaded_file is not None:
         try:
             # Read whatever layout the user drops in
             raw_df = pd.read_csv(uploaded_file)
             
-            # AUTOMATED COLUMN MAPPER: 
-            # If they don't have your exact headers, look for standard variations
+            # AUTOMATED COLUMN MAPPER: Locates standard variations of tracking names
             col_mapping = {}
             for col in raw_df.columns:
                 c_low = col.lower()
@@ -117,6 +127,8 @@ if uploaded_file is not None:
         except Exception:
             st.error("❌ Corrupt File IO Error: Unable to read file matrix structure.")
             data_df = None
+    else:
+        st.info("👋 Welcome! Please upload a valid CSV file containing tracking coordinates to begin processing diagnostics.")
 
 else:
     # DEVELOPER BACKEND MODE: Sidebar controls unlock for simulation testing
