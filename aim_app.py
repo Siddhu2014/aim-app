@@ -2,14 +2,15 @@ import streamlit as st
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import time
 
 # ==========================================
 #     PRODUCTION BRANDING & STYLING (CSS)
 # ==========================================
 def apply_production_skin():
     """
-    Injects custom CSS to hide internal developer tools (like the Deploy button)
-    and clean up the layout margins for end-users.
+    Injects custom CSS to hide internal developer tools (like the Deploy button),
+    clean up the layout margins for end-users, and apply a premium esports aesthetic.
     """
     st.markdown("""
         <style>
@@ -17,11 +18,39 @@ def apply_production_skin():
         .stDeployButton { display: none !important; }
         footer { visibility: hidden; }
         
-        /* Premium metric formatting */
+        /* Esports Typography */
+        @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&display=swap');
+        html, body, [class*="css"] {
+            font-family: 'Rajdhani', sans-serif;
+        }
+        
+        /* Neon Glowing Metrics */
         div[data-testid="stMetricValue"] {
-            font-size: 2.2rem !important;
-            font-weight: 700;
+            font-size: 3.0rem !important;
+            font-weight: 800;
             color: #00ffcc !important;
+            text-shadow: 0px 0px 15px rgba(0, 255, 204, 0.5);
+        }
+        div[data-testid="stMetricLabel"] {
+            color: #b0b0b0 !important;
+            font-size: 1.2rem !important;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        
+        /* Styling the Download Buttons */
+        .stDownloadButton button {
+            background-color: #00ffcc;
+            color: #0e1117;
+            font-weight: bold;
+            border-radius: 8px;
+            transition: all 0.3s ease-in-out;
+        }
+        .stDownloadButton button:hover {
+            box-shadow: 0px 0px 15px rgba(0, 255, 204, 0.6);
+            border-color: #00ffcc;
+            color: #00ffcc;
+            background-color: transparent;
         }
         </style>
     """, unsafe_allow_html=True)
@@ -141,7 +170,36 @@ if not dev_mode:
             st.error("❌ Corrupt File IO Error: Unable to read file matrix structure.")
             data_df = None
     else:
-        st.info("👋 Welcome! Please upload a valid CSV file containing tracking coordinates to begin processing diagnostics.")
+        # ONBOARDING MODULE: Replaces the old plain welcome text with choices for users without files
+        st.info("👋 Welcome! To run diagnostics, you need a CSV tracking log containing cursor coordinates.")
+        st.write("---")
+        st.subheader("💡 Don't have a telemetry file yet?")
+        
+        col_dl1, col_dl2 = st.columns(2)
+        with col_dl1:
+            st.markdown("### 🧪 Option A: Test with Sample Data")
+            st.write("Download our pre-configured pro-level simulation log to see how the mathematical diagnostics engine works instantly.")
+            
+            sample_data = "Timestamp_Sec,Target_X,Target_Y,Player_X,Player_Y\n0.0,100,100,101,99\n0.2,144,133,145,132\n0.4,188,166,187,167\n0.6,233,200,234,198\n0.8,277,233,276,234\n1.0,322,266,323,265\n1.2,366,300,365,301\n1.4,411,333,412,332\n1.6,455,366,454,367\n1.8,500,400,501,399"
+            st.download_button(
+                label="📥 Download Test_Target_Tracking.csv",
+                data=sample_data,
+                file_name="Test_Target_Tracking.csv",
+                mime="text/csv",
+                use_container_width=True
+            )
+            
+        with col_dl2:
+            st.markdown("### 🎮 Option B: Log Your Real Gameplay")
+            st.write("Run our ultra-lightweight background tracking utility script to log your raw hardware movements directly from your desktop monitor.")
+            st.code("""
+# 1. Install input listener library:
+pip install pynput pandas
+
+# 2. Run our open-source tracking client:
+python logger.py
+            """, language="bash")
+            st.markdown("🔒 *Our open-source logger captures zero personal data—it strictly tracks relative pixel coordinate variances.*")
 
 else:
     # DEVELOPER BACKEND MODE: Sidebar controls unlock for simulation testing
@@ -163,7 +221,13 @@ else:
 # --- MAIN RENDER WINDOW ---
 if data_df is not None:
     st.write("---")
-    avg_err, max_flick, smooth_score = analyze_aim_telemetry(data_df)
+    
+    # Cinematic Loading Effect
+    with st.spinner("⚡ Calibrating telemetry matrices..."):
+        time.sleep(1.2) # Dramatic delay for aesthetic feel
+        avg_err, max_flick, smooth_score = analyze_aim_telemetry(data_df)
+    
+    st.toast('Diagnostics Complete!', icon='🎯')
     
     # Dashboard Grid
     col1, col2, col3 = st.columns(3)
@@ -190,7 +254,7 @@ if data_df is not None:
         
         # Matplotlib High-Fidelity Rendering Block
         fig, ax = plt.subplots(figsize=(6, 4))
-        fig.patch.set_facecolor('#0e1117') # Match Streamlit Dark theme canvas
+        fig.patch.set_facecolor('#0e1117') 
         ax.set_facecolor('#0e1117')
         
         ax.plot(data_df["Target_X"], data_df["Target_Y"], color="#00ffcc", label="Target Vector Line", linewidth=2.5)
