@@ -7,10 +7,17 @@ import matplotlib.pyplot as plt
 #     PRODUCTION BRANDING & STYLING (CSS)
 # ==========================================
 def apply_production_skin():
+    """
+    Injects custom CSS to hide internal developer tools (like the Deploy button)
+    and clean up the layout margins for end-users.
+    """
     st.markdown("""
         <style>
+        /* Hide the Streamlit Cloud deployment banner/button for users */
         .stDeployButton { display: none !important; }
         footer { visibility: hidden; }
+        
+        /* Premium metric formatting */
         div[data-testid="stMetricValue"] {
             font-size: 2.2rem !important;
             font-weight: 700;
@@ -23,6 +30,10 @@ def apply_production_skin():
 #     STEP 1: METRIC SIMULATION GENERATOR
 # ==========================================
 def generate_mock_mouse_data(style):
+    """
+    Generates telemetry coordinates to populate the production environment
+    when no custom user file is uploaded.
+    """
     timestamps = np.linspace(0, 2.0, 100)
     target_x = np.linspace(100, 500, 100)
     target_y = np.linspace(100, 400, 100)
@@ -49,6 +60,9 @@ def generate_mock_mouse_data(style):
 #     STEP 2: VECTOR CALCULATIONS ENGINE
 # ==========================================
 def analyze_aim_telemetry(df):
+    """
+    Executes raw physics equations on the coordinate matrices.
+    """
     try:
         dx = df["Player_X"] - df["Target_X"]
         dy = df["Player_Y"] - df["Target_Y"]
@@ -57,12 +71,14 @@ def analyze_aim_telemetry(df):
         avg_error = np.mean(pixel_errors)
         max_overflick = np.max(pixel_errors)
         
+        # Physics Smoothness derivative logic
         velocity_x = np.diff(df["Player_X"])
         acceleration_x = np.diff(velocity_x)
         smoothness_score = max(0, 100 - int(np.std(acceleration_x) * 5))
         
         return avg_error, max_overflick, smoothness_score
     except Exception:
+        # Graceful fallback to prevent production crashes
         return 0.0, 0.0, 0
 
 # ==========================================
@@ -85,14 +101,11 @@ st.write("---")
 st.sidebar.title("🎛️ Control Center")
 dev_mode = st.sidebar.toggle("🛠️ Enable Developer Mode", value=False)
 
-# Initialize data variable
-data_df = None
-
-# --- TELEMETRY RESOLUTION LOGIC ---
-# Initialize both variables to None up front to prevent production NameErrors
+# Initialize telemetry framework variables to prevent global NameErrors
 data_df = None
 uploaded_file = None
 
+# --- TELEMETRY RESOLUTION LOGIC ---
 if not dev_mode:
     # PUBLIC USER MODE: Immediately request CSV upload on the main screen
     st.subheader("📥 Upload Your Telemetry Log")
@@ -175,13 +188,15 @@ if data_df is not None:
         st.subheader("🗺️ 2D Spatial Crosshair Vector Map")
         st.write("Physical coordinate pathways plotted natively in 2D monitor space.")
         
+        # Matplotlib High-Fidelity Rendering Block
         fig, ax = plt.subplots(figsize=(6, 4))
-        fig.patch.set_facecolor('#0e1117') 
+        fig.patch.set_facecolor('#0e1117') # Match Streamlit Dark theme canvas
         ax.set_facecolor('#0e1117')
         
         ax.plot(data_df["Target_X"], data_df["Target_Y"], color="#00ffcc", label="Target Vector Line", linewidth=2.5)
         ax.scatter(data_df["Player_X"], data_df["Player_Y"], color="#ff4b4b", label="Your Crosshair Path", alpha=0.8, s=18, edgecolors='none')
         
+        # Grid/Axis Styling
         ax.tick_params(colors='white')
         ax.xaxis.label.set_color('white')
         ax.yaxis.label.set_color('white')
@@ -189,15 +204,18 @@ if data_df is not None:
         ax.set_ylabel("Monitor Height Axis (Pixels)")
         ax.grid(True, linestyle=":", alpha=0.3, color="white")
         
+        # Legend custom dark formatting
         leg = ax.legend(facecolor='#0e1117', edgecolor='#00ffcc')
         for text in leg.get_texts():
             text.set_color('white')
             
         st.pyplot(fig)
 
+    # Developer Dump-Table Section
     if dev_mode:
         st.write("---")
         st.subheader("📊 Debug Array Inspection View")
+        st.write("Raw float values passing through dataframe tracking cells:")
         st.dataframe(data_df, use_container_width=True)
 
     st.write("---")
