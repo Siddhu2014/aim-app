@@ -191,7 +191,7 @@ if not dev_mode:
             
         with col_dl2:
             st.markdown("### 🎮 Option B: Log Your Real Gameplay")
-            st.write("Download and run our ultra-lightweight background tracking utility script to log your raw hardware movements.")
+            st.write("Download our background tracking utility to log your raw hardware movements directly to your PC.")
             
             # Embed the python script as a string to allow users to download it
             logger_script = """import time
@@ -245,7 +245,7 @@ print("\\n🚀 Tracking session complete! Saved as: 'target_tracking.csv'")
 print("📥 Upload this file to your web dashboard!")
 """
 
-            # The new download button for the script
+            # The download button for the script
             st.download_button(
                 label="💻 Download logger.py Script",
                 data=logger_script,
@@ -254,14 +254,15 @@ print("📥 Upload this file to your web dashboard!")
                 use_container_width=True
             )
             
-            st.code("""
-# 1. Open your terminal/command prompt
-# 2. Install required libraries:
-pip install pynput pandas
-
-# 3. Run the tracking client:
-python logger.py
-            """, language="bash")
+            # Windows-Friendly File Explorer Instructions
+            st.info("""
+            **🪟 Windows Instructions:**
+            1. Download the script above.
+            2. Open your File Explorer and locate `logger.py`.
+            3. Simply **double-click** the file to start recording!
+            
+            *(Note: Requires Python to be installed on your system. If the black window closes instantly, ensure you have the `pynput` and `pandas` libraries).*
+            """)
             st.markdown("🔒 *Our open-source logger captures zero personal data.*")
 
 else:
