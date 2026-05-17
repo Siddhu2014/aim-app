@@ -4,19 +4,15 @@ import pandas as pd
 from pynput import mouse
 
 # Initialize data storage arrays
-timestamps = []
-player_x_coords = []
-player_y_coords = []
-target_x_coords = []
-target_y_coords = []
-
+timestamps, player_x_coords, player_y_coords, target_x_coords, target_y_coords = [], [], [], [], []
 start_time = time.time()
+
 print("🎯 Aim Telemetry Logger Initialized!")
 print("👉 Move your mouse to track the imaginary moving target... Recording for 5 seconds.")
 print("--- Starting in 3... 2... 1... ---")
 time.sleep(3)
 
-# Establish a standard sampling rate (e.g., 50Hz / every 0.02 seconds)
+# Establish a standard sampling rate (50Hz / every 0.02 seconds)
 sample_interval = 0.02 
 last_sample_time = time.time()
 
@@ -68,4 +64,4 @@ log_df.to_csv(output_filename, index=False)
 
 print("\n🚀 Tracking session complete!")
 print(f"📁 File saved successfully as: '{output_filename}'")
-print("📥 Upload this file directly to aim-app.streamlit.app to view your diagnostics!")
+print("📥 Upload this file directly to your web dashboard!")
