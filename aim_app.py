@@ -191,15 +191,78 @@ if not dev_mode:
             
         with col_dl2:
             st.markdown("### 🎮 Option B: Log Your Real Gameplay")
-            st.write("Run our ultra-lightweight background tracking utility script to log your raw hardware movements directly from your desktop monitor.")
+            st.write("Download and run our ultra-lightweight background tracking utility script to log your raw hardware movements.")
+            
+            # Embed the python script as a string to allow users to download it
+            logger_script = """import time
+import math
+import pandas as pd
+from pynput import mouse
+
+timestamps, player_x_coords, player_y_coords, target_x_coords, target_y_coords = [], [], [], [], []
+start_time = time.time()
+
+print("🎯 Aim Telemetry Logger Initialized!")
+print("👉 Move your mouse to track the imaginary moving target... Recording for 5 seconds.")
+print("--- Starting in 3... 2... 1... ---")
+time.sleep(3)
+
+sample_interval = 0.02 
+last_sample_time = time.time()
+
+def get_target_position(elapsed):
+    return 100 + (elapsed * 150), 200 + (math.sin(elapsed * 3) * 100)
+
+def on_move(x, y):
+    global last_sample_time
+    current_time = time.time()
+    elapsed = current_time - start_time
+    
+    if elapsed > 5.0:
+        return False
+        
+    if current_time - last_sample_time >= sample_interval:
+        timestamps.append(round(elapsed, 3))
+        player_x_coords.append(x)
+        player_y_coords.append(y)
+        
+        t_x, t_y = get_target_position(elapsed)
+        target_x_coords.append(round(t_x, 2))
+        target_y_coords.append(round(t_y, 2))
+        
+        last_sample_time = current_time
+
+with mouse.Listener(on_move=on_move) as listener:
+    listener.join()
+
+log_df = pd.DataFrame({
+    "Timestamp_Sec": timestamps, "Target_X": target_x_coords, "Target_Y": target_y_coords,
+    "Player_X": player_x_coords, "Player_Y": player_y_coords
+})
+
+log_df.to_csv("target_tracking.csv", index=False)
+print("\\n🚀 Tracking session complete! Saved as: 'target_tracking.csv'")
+print("📥 Upload this file to your web dashboard!")
+"""
+
+            # The new download button for the script
+            st.download_button(
+                label="💻 Download logger.py Script",
+                data=logger_script,
+                file_name="logger.py",
+                mime="text/x-python",
+                use_container_width=True
+            )
+            
             st.code("""
-# 1. Install input listener library:
+# 1. Open your terminal/command prompt
+# 2. Install required libraries:
 pip install pynput pandas
 
-# 2. Run our open-source tracking client:
+# 3. Run the tracking client:
 python logger.py
             """, language="bash")
-            st.markdown("🔒 *Our open-source logger captures zero personal data—it strictly tracks relative pixel coordinate variances.*")
+            st.markdown("🔒 *Our open-source logger captures zero personal data.*")
 
 else:
     # DEVELOPER BACKEND MODE: Sidebar controls unlock for simulation testing
