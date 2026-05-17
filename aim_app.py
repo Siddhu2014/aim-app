@@ -256,12 +256,13 @@ print("📥 Upload this file to your web dashboard!")
             
             # Windows-Friendly File Explorer Instructions
             st.info("""
-            **🪟 Windows Instructions:**
-            1. Download the script above.
-            2. Open your File Explorer and locate `logger.py`.
-            3. Simply **double-click** the file to start recording!
+            **🪟 Windows Setup Instructions:**
+            1. Download the `logger.py` script to a new folder on your desktop.
+            2. Open your command prompt, type `pip install pynput pandas` and hit Enter (only needed once).
+            3. To run the tracker, open the folder containing the script, click the address bar at the top of the folder, type `cmd` and hit Enter.
+            4. In the black box that appears, type `python logger.py` and hit Enter.
             
-            *(Note: Requires Python to be installed on your system. If the black window closes instantly, ensure you have the `pynput` and `pandas` libraries).*
+            *(Pro Tip: To make it double-clickable next time, create a text file next to it named `Run_Tracker.bat`, type `python logger.py` inside, save it, and just double-click the .bat file!)*
             """)
             st.markdown("🔒 *Our open-source logger captures zero personal data.*")
 
