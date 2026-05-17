@@ -89,25 +89,34 @@ dev_mode = st.sidebar.toggle("🛠️ Enable Developer Mode", value=False)
 data_df = None
 
 # --- TELEMETRY RESOLUTION LOGIC ---
-if not dev_mode:
-    # PUBLIC USER MODE: Immediately request CSV upload on the main screen
-    st.subheader("📥 Upload Your Telemetry Log")
-    st.write("Drop your tracking spreadsheet below to generate your custom diagnostics report.")
-    
-    uploaded_file = st.file_uploader("Upload target_tracking.csv", type=["csv"], label_visibility="collapsed")
-    
-    if uploaded_file is not None:
+if uploaded_file is not None:
         try:
-            data_df = pd.read_csv(uploaded_file)
+            # Read whatever layout the user drops in
+            raw_df = pd.read_csv(uploaded_file)
+            
+            # AUTOMATED COLUMN MAPPER: 
+            # If they don't have your exact headers, look for standard variations
+            col_mapping = {}
+            for col in raw_df.columns:
+                c_low = col.lower()
+                if "time" in c_low or "sec" in c_low: col_mapping[col] = "Timestamp_Sec"
+                elif "target_x" in c_low or "targetx" in c_low: col_mapping[col] = "Target_X"
+                elif "target_y" in c_low or "targety" in c_low: col_mapping[col] = "Target_Y"
+                elif "player_x" in c_low or "mouse_x" in c_low or "cursor_x" in c_low: col_mapping[col] = "Player_X"
+                elif "player_y" in c_low or "mouse_y" in c_low or "cursor_y" in c_low: col_mapping[col] = "Player_Y"
+            
+            # Rename columns based on matches found
+            data_df = raw_df.rename(columns=col_mapping)
+            
+            # Fallback Validation Check
             required_cols = ["Target_X", "Target_Y", "Player_X", "Player_Y"]
             if not all(col in data_df.columns for col in required_cols):
-                st.error("❌ Schema Error: Uploaded file is missing essential physical spatial headers (Target_X, Target_Y, Player_X, Player_Y).")
+                st.error("❌ Column Layout Error: We couldn't automatically locate your coordinate rows. Make sure your file headers contain labels like 'Mouse_X' or 'Target_X'!")
                 data_df = None
+                
         except Exception:
             st.error("❌ Corrupt File IO Error: Unable to read file matrix structure.")
             data_df = None
-    else:
-        st.info("👋 Welcome! Please upload a valid CSV file containing tracking coordinates to begin processing diagnostics.")
 
 else:
     # DEVELOPER BACKEND MODE: Sidebar controls unlock for simulation testing
